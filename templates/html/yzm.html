@@ -1,0 +1,84 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+</head>
+<body >
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+<div id="p1"  style="vertical-align:bottom;display:table-cell;width:500px; height:500px; background:url(/yzm/btj/);"></div>
+<img id="p3" style="position:absolute;left:0;bottom:0;" src="/yzm/pt/" alt=""/>
+
+	 
+</table>
+<script>
+var json;
+var st;
+var html_x;
+var html_y;
+
+window.onload=function (){
+	p3.ondragstart=function(e){  
+	    //console.log('事件源p3开始拖动');
+	    //记录刚一拖动时，鼠标在飞机上的偏移量  
+	    offsetX= e.offsetX;  
+	    offsetY= e.offsetY;  
+	    st=(new Date()).valueOf();
+	}  
+	p3.ondrag=function(e){  
+	    console.log('事件源p3拖动中');  
+	    var x= e.pageX;  
+	    var y= e.pageY;  
+	   // console.log(x+'-'+y);  
+	    //drag事件最后一刻，无法读取鼠标的坐标，pageX和pageY都变为0  
+	    if(x==0 && y==0){  
+	        return; //不处理拖动最后一刻X和Y都为0的情形  
+	    }  
+	    x-=offsetX;  
+	    y-=offsetY;  
+		if (document.getElementById("p3").style.left != 0 && document.getElementById("p3").style.top !=0){
+		    html_x=document.getElementById("p3").style.left;
+		    html_y=document.getElementById("p3").style.top;
+		}
+	    p3.style.left=x+'px';  
+	    p3.style.top=y+'px';  
+	}  
+	p3.ondragend=function(){  
+		var sj=(new Date()).valueOf()-st;
+	    //console.log('源对象p3拖动结束'); 
+
+		var status;
+	    json = $.ajax({
+			
+			async:false,
+			data: {"html_x":html_x,"html_y":html_y},
+			url:"status/",
+			dataType: "json",
+			type: "POST",
+			success:function(data){
+				//alert(data.status);
+				status=data
+			}
+			
+	    })
+	    console.log(status.status);
+
+	    var status=status;
+	    //console.log(json);
+	    if (status.status=='error'){ 
+	    	document.getElementById("p3").style.left="0";
+	    	document.getElementById("p3").style.bottom="0";
+	    	document.getElementById("p3").style.top="auto";
+	    }else{
+	    	document.getElementById("p3").setAttribute("ondragstart","return false;");
+	    	document.getElementById("p3").style.left=html_x;
+	    	document.getElementById("p3").style.top=html_y;
+	    	alert(status.status+"验证成功,耗时"+sj/1000+"秒");
+	    	document.getElementById("p1").innerHTML="验证成功,耗时"+sj/1000+"秒";
+	    	}
+	    }
+	}  
+
+
+</script>  
+</body>
+</html>  
